@@ -1,0 +1,29 @@
+{
+  "name": "Animals",
+  "short_name": "Animals",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#fff",
+  "description": "Funny stackable animals",
+  "icons": [
+    {
+      "src": "img/icon_144x144.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/img/screenshot.png",
+      "type": "image/png",
+      "sizes": "540x720",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "/img/screenshot_wide.png",
+      "type": "image/png",
+      "sizes": "1920x1080",
+      "form_factor": "wide"
+    }
+  ]
+}
