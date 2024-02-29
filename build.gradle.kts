@@ -31,7 +31,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.8.0-RC")
     implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-html-js", version = "0.8.0")
     implementation(group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version = "1.5.1")
-    implementation(npm(name = "matter-js", version = "0.19.0"))
+    implementation(npm(name = "gl-matrix", version = "3.4.3"))
 }
 
 data class BuildInfo(

@@ -2,53 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Three.js Quad Example</title>
+    <title>WebGL Cube Example with Texture</title>
     <style>
         body { margin: 0; }
         canvas { display: block; }
     </style>
 </head>
 <body>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script>
-    // Set up the scene, camera, and renderer
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
+<canvas id="webgl-canvas" width="1024" height="1024"></canvas>
 
-    // Define the geometry (quad)
-    const geometry = new THREE.BufferGeometry();
-    const vertices = new Float32Array([
-        -1, 1, 0,   // top left
-        -1, -1, 0,  // bottom left
-        1, -1, 0,   // bottom right
-
-        -1, 1, 0,   // top left
-        1, -1, 0,   // bottom right
-        1, 1, 0     // top right
-    ]);
-    geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3)); // Create a buffer attribute for positions
-
-    // Define the material
-    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, side: THREE.DoubleSide });
-
-    // Create the mesh
-    const quad = new THREE.Mesh(geometry, material);
-    scene.add(quad);
-
-    // Position the camera
-    camera.position.z = 5;
-
-    // Render the scene
-    function animate() {
-        requestAnimationFrame(animate);
-        quad.rotation.x += 0.01;
-        quad.rotation.y += 0.01;
-        renderer.render(scene, camera);
-    }
-    animate();
-</script>
+<!-- Include gl-matrix library -->
+<script src="app.js"></script>
 </body>
 </html>
