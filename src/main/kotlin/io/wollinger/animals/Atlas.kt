@@ -11,6 +11,18 @@ enum class Atlas(
         0.0f, i,
         i, i
     )),
+    STONE(floatArrayOf(
+        i, 0f,
+        i * 2, 0f,
+        i, i,
+        i * 2, i
+    )),
+    BEDROCK(floatArrayOf(
+        i, i,
+        i * 2, i,
+        i, i * 2,
+        i * 2, i * 2
+    )),
     GRASS_SIDE(floatArrayOf(
         i * 3, 0f,
         i * 4, 0f,
@@ -42,4 +54,10 @@ enum class Atlas(
         i * 10, i,
         i * 11, i
     )),
+    GLASS_BLOCK(floatArrayOf(
+        i * 1, i * 3,
+        i * 2, i * 3,
+        i * 1, i * 4,
+        i * 2, i * 4
+    ))
 }
