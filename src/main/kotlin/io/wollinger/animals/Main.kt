@@ -1,12 +1,12 @@
-import io.wollinger.animals.Block
-import io.wollinger.animals.Mesh
-import io.wollinger.animals.Texture
+import io.wollinger.animals.*
+import io.wollinger.animals.utils.FPSCounter
 import io.wollinger.animals.utils.download
 import kotlinx.browser.document
 import kotlinx.browser.window
 import org.khronos.webgl.Float32Array
 import org.khronos.webgl.WebGLRenderingContext
 import org.w3c.dom.HTMLCanvasElement
+import kotlin.js.json
 import kotlin.math.PI
 
 suspend fun main() {
@@ -15,10 +15,22 @@ suspend fun main() {
 
 suspend fun init() {
     val canvas = document.getElementById("webgl-canvas") as HTMLCanvasElement
-    val gl = canvas.getContext("webgl") as WebGLRenderingContext
+    val gl = canvas.getContext("webgl", json(Pair("antialias", false))) as WebGLRenderingContext
 
-    val dirtMesh = Mesh(gl, Block.DIRT)
-    val grassMesh = Mesh(gl, Block.TNT)
+    val blockStorage = BlockStorage().apply {
+        for(x in 0 until 16) {
+            for(z in 0 until 16) {
+                set(x, 0, z, Block.DIRT)
+                set(x, 1, z, Block.DIRT)
+                set(x, 2, z, Block.DIRT)
+                set(x, 3, z, Block.GRASS)
+            }
+        }
+        set(8, 4, 8, Block.TNT)
+        set(8, 5, 8, Block.TNT)
+        set(9, 5, 8, Block.TNT)
+    }
+    val blockStorageMesh = BlockStorageMesher.mesh(gl, blockStorage)
     var grassRotation = 0f
     val terrainTexture = Texture("/terrain.png", gl)
 
@@ -51,6 +63,25 @@ suspend fun init() {
     val projectionMatrixLocation = gl.getUniformLocation(shaderProgram, "uProjectionMatrix")
     val projectionMatrix = mat4.create()
 
+    var locked = false
+    canvas.onclick = {
+        canvas.asDynamic().requestPointerLock()
+        locked = true
+        null
+    }
+    var rotX = 0f
+    var rotY = 0f
+
+    document.onmousemove = {
+        if(locked) {
+            rotX += (it.asDynamic().movementX as Int) * 0.005f
+            rotY += (it.asDynamic().movementY as Int) * 0.005f
+        }
+    }
+
+    var x: Float = 0f
+    var y: Float = 0f
+    var z: Float = -20f
     fun drawScene() {
         if(canvas.width != window.innerWidth || canvas.height != window.innerHeight) {
             canvas.width = window.innerWidth
@@ -64,36 +95,45 @@ suspend fun init() {
         gl.enable(WebGLRenderingContext.DEPTH_TEST)
 
         mat4.perspective(projectionMatrix, PI / 4, aspect, zNear, zFar)
-        mat4.translate(projectionMatrix, projectionMatrix, arrayOf(0.0, 0.0, -12.0))
+        mat4.rotate(projectionMatrix, projectionMatrix, rotX, arrayOf(0, 1, 0))
+        mat4.rotate(projectionMatrix, projectionMatrix, rotY, arrayOf(1, 0, 0))
+
+        mat4.translate(projectionMatrix, projectionMatrix, arrayOf(x, y, z))
         gl.uniformMatrix4fv(projectionMatrixLocation, false, projectionMatrix as Float32Array)
 
         terrainTexture.bind()
-        //Draw static dirt block
-        run {
-            //dirtTexture.bind()
-            val modelViewMatrixLocation = gl.getUniformLocation(shaderProgram, "uModelViewMatrix")
-            val modelViewMatrix = mat4.create()
-            mat4.translate(modelViewMatrix, modelViewMatrix, arrayOf(-0.0, 0.0, -6.0))
-            gl.uniformMatrix4fv(modelViewMatrixLocation, false, modelViewMatrix as Float32Array)
-            dirtMesh.draw(shaderProgram)
-        }
 
-        //Draw rotating grass block
-        run {
-            //grassTexture.bind()
-            val modelViewMatrixLocation = gl.getUniformLocation(shaderProgram, "uModelViewMatrix")
-            val modelViewMatrix = mat4.create()
-            mat4.translate(modelViewMatrix, modelViewMatrix, arrayOf(-4.0, 1.0, -5.0))
-            mat4.rotate(modelViewMatrix, modelViewMatrix, grassRotation, arrayOf(1, 1, 0))
-            gl.uniformMatrix4fv(modelViewMatrixLocation, false, modelViewMatrix as Float32Array)
-            grassMesh.draw(shaderProgram)
-        }
+        val modelViewMatrixLocation = gl.getUniformLocation(shaderProgram, "uModelViewMatrix")
+        var modelViewMatrix = mat4.create()
+        //mat4.translate(modelViewMatrix, modelViewMatrix, arrayOf(-4.0, 1.0, -5.0))
+        mat4.rotate(modelViewMatrix, modelViewMatrix, grassRotation, arrayOf(0, 1, 0))
+        gl.uniformMatrix4fv(modelViewMatrixLocation, false, modelViewMatrix as Float32Array)
+        blockStorageMesh.draw(shaderProgram)
     }
 
+
+    var keys = ArrayList<String>()
+
+    window.onkeydown = {
+        if(!keys.contains(it.key)) keys.add(it.key)
+    }
+    window.onkeyup = { keys.remove(it.key) }
+
     fun update(delta: Double) {
+        val speed = 0.005f
+        if(keys.contains("w")) z += speed * delta.toFloat()
+        if(keys.contains("s")) z += -speed * delta.toFloat()
+        if(keys.contains("a")) x += speed * delta.toFloat()
+        if(keys.contains("d")) x += -speed * delta.toFloat()
+        if(keys.contains("Control")) y += speed * delta.toFloat()
+        if(keys.contains(" ")) y += -speed * delta.toFloat()
+
+
         grassRotation += 0.0005f * delta.toFloat()
     }
 
+
+    val fps = FPSCounter()
     var last = 0.0
     fun loop(timestamp: Double) {
         val delta = timestamp - last
@@ -101,6 +141,7 @@ suspend fun init() {
 
         update(delta)
         drawScene()
+        fps.frame()
         window.requestAnimationFrame(::loop)
     }
 
