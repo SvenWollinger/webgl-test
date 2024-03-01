@@ -1,1 +1,1 @@
-rootProject.name = "Tetris"
+rootProject.name = "webgl-test"
