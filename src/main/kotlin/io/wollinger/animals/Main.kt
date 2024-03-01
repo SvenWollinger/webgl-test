@@ -15,7 +15,7 @@ suspend fun main() {
 
 suspend fun init() {
     val canvas = document.getElementById("webgl-canvas") as HTMLCanvasElement
-    val gl = canvas.getContext("webgl", json(Pair("antialias", false))) as WebGLRenderingContext
+    val gl = canvas.getContext("webgl", json(Pair("antialias", false), Pair("premultipliedAlpha", false))) as WebGLRenderingContext
 
     val blockStorage = BlockStorage().apply {
         for(x in 0 until 16) {
@@ -29,6 +29,7 @@ suspend fun init() {
         set(8, 4, 8, Block.TNT)
         set(8, 5, 8, Block.TNT)
         set(9, 5, 8, Block.TNT)
+        set(4, 4, 8, Block.GLASS)
     }
     val blockStorageMesh = BlockStorageMesher.mesh(gl, blockStorage)
     var grassRotation = 0f
@@ -81,7 +82,8 @@ suspend fun init() {
 
     var x: Float = 0f
     var y: Float = 0f
-    var z: Float = -20f
+    var z: Float = -30f
+    var rMesh: Mesh = BlockStorageMesher.mesh(gl, BlockStorage(true))
     fun drawScene() {
         if(canvas.width != window.innerWidth || canvas.height != window.innerHeight) {
             canvas.width = window.innerWidth
@@ -93,6 +95,8 @@ suspend fun init() {
         gl.clearColor(0.0f, 0.0f, 0.0f, 1.0f)
         gl.clear(WebGLRenderingContext.COLOR_BUFFER_BIT or WebGLRenderingContext.DEPTH_BUFFER_BIT)
         gl.enable(WebGLRenderingContext.DEPTH_TEST)
+        gl.enable(WebGLRenderingContext.BLEND)
+        gl.blendFunc(WebGLRenderingContext.SRC_ALPHA, WebGLRenderingContext.BLEND_SRC_ALPHA)
 
         mat4.perspective(projectionMatrix, PI / 4, aspect, zNear, zFar)
         mat4.rotate(projectionMatrix, projectionMatrix, rotX, arrayOf(0, 1, 0))
@@ -108,7 +112,13 @@ suspend fun init() {
         //mat4.translate(modelViewMatrix, modelViewMatrix, arrayOf(-4.0, 1.0, -5.0))
         mat4.rotate(modelViewMatrix, modelViewMatrix, grassRotation, arrayOf(0, 1, 0))
         gl.uniformMatrix4fv(modelViewMatrixLocation, false, modelViewMatrix as Float32Array)
-        blockStorageMesh.draw(shaderProgram)
+        //blockStorageMesh.draw(shaderProgram)
+        rMesh.draw(shaderProgram)
+
+        //modelViewMatrix = mat4.create()
+        //mat4.translate(modelViewMatrix, modelViewMatrix, arrayOf(-4.0, 1.0, -5.0))
+        //gl.uniformMatrix4fv(modelViewMatrixLocation, false, modelViewMatrix as Float32Array)
+        //blockStorageMesh.draw(shaderProgram)
     }
 
 
@@ -119,7 +129,14 @@ suspend fun init() {
     }
     window.onkeyup = { keys.remove(it.key) }
 
+    var timer = 0.0
+
     fun update(delta: Double) {
+        timer += delta
+        if(timer >= 1500) {
+            timer = 0.0
+            rMesh = BlockStorageMesher.mesh(gl, BlockStorage(true))
+        }
         val speed = 0.005f
         if(keys.contains("w")) z += speed * delta.toFloat()
         if(keys.contains("s")) z += -speed * delta.toFloat()
