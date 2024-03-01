@@ -167,7 +167,8 @@ object BlockStorageMesher {
         storage.forEach { x, y, z, block ->
             fun get(x: Int, y: Int, z: Int): Boolean {
                 return try {
-                    storage.get(x, y, z) == null
+                    val b = storage.get(x, y, z)
+                    b == null || !b.solid
                 } catch (e: Exception) {
                     if(0 > x) println("$x $y $z")
 
