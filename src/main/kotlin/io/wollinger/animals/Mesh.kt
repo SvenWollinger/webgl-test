@@ -128,38 +128,38 @@ class Mesh(private val gl: WebGLRenderingContext) {
     }
 
     fun draw(shaderProgram: WebGLProgram) {
-        val vertexBuffer = gl.createBuffer();
-        gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, vertexBuffer);
-        gl.bufferData(WebGLRenderingContext.ARRAY_BUFFER, Float32Array(vertices), WebGLRenderingContext.STATIC_DRAW);
+        val vertexBuffer = gl.createBuffer()
+        gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, vertexBuffer)
+        gl.bufferData(WebGLRenderingContext.ARRAY_BUFFER, Float32Array(vertices), WebGLRenderingContext.STATIC_DRAW)
 
         // Create buffer and bind data for texture coordinates
-        val texCoordBuffer = gl.createBuffer();
-        gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, texCoordBuffer);
-        gl.bufferData(WebGLRenderingContext.ARRAY_BUFFER, Float32Array(texCoords), WebGLRenderingContext.STATIC_DRAW);
+        val texCoordBuffer = gl.createBuffer()
+        gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, texCoordBuffer)
+        gl.bufferData(WebGLRenderingContext.ARRAY_BUFFER, Float32Array(texCoords), WebGLRenderingContext.STATIC_DRAW)
 
         // Create buffer and bind data for colors
-        val colorBuffer = gl.createBuffer();
-        gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, colorBuffer);
-        gl.bufferData(WebGLRenderingContext.ARRAY_BUFFER, Float32Array(colors), WebGLRenderingContext.STATIC_DRAW);
+        val colorBuffer = gl.createBuffer()
+        gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, colorBuffer)
+        gl.bufferData(WebGLRenderingContext.ARRAY_BUFFER, Float32Array(colors), WebGLRenderingContext.STATIC_DRAW)
 
         // Get attribute and uniform locations
-        val positionAttributeLocation = gl.getAttribLocation(shaderProgram, "aPosition");
-        gl.enableVertexAttribArray(positionAttributeLocation);
-        gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, vertexBuffer);
-        gl.vertexAttribPointer(positionAttributeLocation, 3, WebGLRenderingContext.FLOAT, false, 0, 0);
+        val positionAttributeLocation = gl.getAttribLocation(shaderProgram, "aPosition")
+        gl.enableVertexAttribArray(positionAttributeLocation)
+        gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, vertexBuffer)
+        gl.vertexAttribPointer(positionAttributeLocation, 3, WebGLRenderingContext.FLOAT, false, 0, 0)
 
-        val texCoordAttributeLocation = gl.getAttribLocation(shaderProgram, "aTexCoord");
-        gl.enableVertexAttribArray(texCoordAttributeLocation);
-        gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, texCoordBuffer);
-        gl.vertexAttribPointer(texCoordAttributeLocation, 2, WebGLRenderingContext.FLOAT, false, 0, 0);
+        val texCoordAttributeLocation = gl.getAttribLocation(shaderProgram, "aTexCoord")
+        gl.enableVertexAttribArray(texCoordAttributeLocation)
+        gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, texCoordBuffer)
+        gl.vertexAttribPointer(texCoordAttributeLocation, 2, WebGLRenderingContext.FLOAT, false, 0, 0)
 
-        val colorAttributeLocation = gl.getAttribLocation(shaderProgram, "aColor");
-        gl.enableVertexAttribArray(colorAttributeLocation);
-        gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, colorBuffer);
-        gl.vertexAttribPointer(colorAttributeLocation, 3, WebGLRenderingContext.FLOAT, false, 0, 0);
+        val colorAttributeLocation = gl.getAttribLocation(shaderProgram, "aColor")
+        gl.enableVertexAttribArray(colorAttributeLocation)
+        gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, colorBuffer)
+        gl.vertexAttribPointer(colorAttributeLocation, 3, WebGLRenderingContext.FLOAT, false, 0, 0)
 
         repeat(6) {
-            gl.drawArrays(WebGLRenderingContext.TRIANGLE_STRIP, it * 4, 4);
+            gl.drawArrays(WebGLRenderingContext.TRIANGLE_STRIP, it * 4, 4)
         }
     }
 
@@ -172,9 +172,9 @@ class Texture(path: String, private val gl: WebGLRenderingContext) {
     init {
         val img = Image().apply { src = path }
         img.onload = {
-            gl.bindTexture(WebGLRenderingContext.TEXTURE_2D, texture);
-            gl.texImage2D(WebGLRenderingContext.TEXTURE_2D, 0, WebGLRenderingContext.RGBA, WebGLRenderingContext.RGBA, WebGLRenderingContext.UNSIGNED_BYTE, img);
-            gl.generateMipmap(WebGLRenderingContext.TEXTURE_2D);
+            gl.bindTexture(WebGLRenderingContext.TEXTURE_2D, texture)
+            gl.texImage2D(WebGLRenderingContext.TEXTURE_2D, 0, WebGLRenderingContext.RGBA, WebGLRenderingContext.RGBA, WebGLRenderingContext.UNSIGNED_BYTE, img)
+            gl.generateMipmap(WebGLRenderingContext.TEXTURE_2D)
             ready = true
             null
         }
