@@ -17,14 +17,7 @@ enum class Block (
         left = Atlas.GRASS_SIDE,
         right = Atlas.GRASS_SIDE
     ),
-    DIRT(
-        top = Atlas.DIRT,
-        bottom = Atlas.DIRT,
-        front = Atlas.DIRT,
-        back = Atlas.DIRT,
-        left = Atlas.DIRT,
-        right = Atlas.DIRT
-    ),
+    DIRT(Atlas.DIRT),
     TNT(
         top = Atlas.TNT_TOP,
         bottom = Atlas.TNT_BOTTOM,
@@ -33,29 +26,26 @@ enum class Block (
         left = Atlas.TNT_SIDE,
         right = Atlas.TNT_SIDE
     ),
-    GLASS(
-        top = Atlas.GLASS_BLOCK,
-        bottom = Atlas.GLASS_BLOCK,
-        front = Atlas.GLASS_BLOCK,
-        back = Atlas.GLASS_BLOCK,
-        left = Atlas.GLASS_BLOCK,
-        right = Atlas.GLASS_BLOCK,
-        solid = false
+    GLASS(all = Atlas.GLASS_BLOCK, solid = false),
+    STONE(Atlas.STONE),
+    BEDROCK(Atlas.BEDROCK),
+    COBBLESTONE(Atlas.COBBLESTONE),
+    OAK_PLANKS(Atlas.OAK_PLANKS),
+    BRICKS(Atlas.BRICKS),
+    SAND(Atlas.SAND),
+    GRAVEL(Atlas.GRAVEL),
+    OAK_LOG(
+        top = Atlas.OAK_LOG_TOP,
+        bottom = Atlas.OAK_LOG_TOP,
+        front = Atlas.OAK_LOG_SIDE,
+        back = Atlas.OAK_LOG_SIDE,
+        left = Atlas.OAK_LOG_SIDE,
+        right = Atlas.OAK_LOG_SIDE,
     ),
-    STONE(
-        top = Atlas.STONE,
-        bottom = Atlas.STONE,
-        front = Atlas.STONE,
-        back = Atlas.STONE,
-        left = Atlas.STONE,
-        right = Atlas.STONE
-    ),
-    BEDROCK(
-        top = Atlas.BEDROCK,
-        bottom = Atlas.BEDROCK,
-        front = Atlas.BEDROCK,
-        back = Atlas.BEDROCK,
-        left = Atlas.BEDROCK,
-        right = Atlas.BEDROCK
-    )
+    IRON_BLOCK(Atlas.IRON_BLOCK),
+    GOLD_BLOCK(Atlas.GOLD_BLOCK),
+    DIAMOND_BLOCK(Atlas.DIAMOND_BLOCK),
+    DIAMOND_ORE(Atlas.DIAMOND_ORE),
+    ;
+    constructor(all: Atlas, solid: Boolean = true) : this(all, all, all, all, all, all, solid)
 }

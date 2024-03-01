@@ -21,6 +21,8 @@ class BlockStorage(randomBlocks: Boolean = false) {
     fun get(x: Int, y: Int, z: Int): Block? {
         if(0 > x) throw Exception("nah")
         if(x >= size) throw Exception("still nah")
+        if(0 > y) throw Exception("nah")
+        if(y >= size) throw Exception("still nah")
         val index = getIndex(x, y, z)
         if (index in array.indices) {
             return array[index]

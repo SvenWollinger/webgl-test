@@ -129,14 +129,12 @@ suspend fun init() {
     }
     window.onkeyup = { keys.remove(it.key) }
 
-    var timer = 0.0
-
+    var placed = false
     fun update(delta: Double) {
-        timer += delta
-        if(timer >= 1500) {
-            timer = 0.0
+        if(keys.contains("r") && !placed) {
+            placed = true
             rMesh = BlockStorageMesher.mesh(gl, BlockStorage(true))
-        }
+        } else if(!keys.contains("r")) placed = false
         val speed = 0.005f
         if(keys.contains("w")) z += speed * delta.toFloat()
         if(keys.contains("s")) z += -speed * delta.toFloat()
