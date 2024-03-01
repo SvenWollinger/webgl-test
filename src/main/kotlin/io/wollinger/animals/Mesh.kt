@@ -6,25 +6,59 @@ import org.khronos.webgl.WebGLRenderingContext
 import org.khronos.webgl.WebGLShader
 import org.w3c.dom.Image
 
-class Mesh(private val gl: WebGLRenderingContext) {
-    val vertices: Array<Float>
-    val texCoords: Array<Float>
-    val colors: Array<Float>
+enum class Block (
+    val top: Atlas,
+    val bottom: Atlas,
+    val front: Atlas,
+    val back: Atlas,
+    val left: Atlas,
+    val right: Atlas
+){
+    GRASS(
+        top = Atlas.GRASS_TOP,
+        bottom = Atlas.DIRT,
+        front = Atlas.GRASS_SIDE,
+        back = Atlas.GRASS_SIDE,
+        left = Atlas.GRASS_SIDE,
+        right = Atlas.GRASS_SIDE
+    ),
+    DIRT(
+        top = Atlas.DIRT,
+        bottom = Atlas.DIRT,
+        front = Atlas.DIRT,
+        back = Atlas.DIRT,
+        left = Atlas.DIRT,
+        right = Atlas.DIRT
+    ),
+    TNT(
+        top = Atlas.TNT_TOP,
+        bottom = Atlas.TNT_BOTTOM,
+        front = Atlas.TNT_SIDE,
+        back = Atlas.TNT_SIDE,
+        left = Atlas.TNT_SIDE,
+        right = Atlas.TNT_SIDE
+    )
+}
+
+class Mesh(private val gl: WebGLRenderingContext, block: Block) {
+    private val vertices: Array<Float>
+    private val texCoords: Array<Float>
+    private val colors: Array<Float>
 
     init {
         // Define vertex positions for each face
         vertices = arrayOf(
             // Front face
-            -1.0, -1.0,  1.0,
-            1.0, -1.0,  1.0,
             -1.0,  1.0,  1.0,
             1.0,  1.0,  1.0,
+            -1.0, -1.0,  1.0,
+            1.0, -1.0,  1.0,
 
             // Back face
-            1.0, -1.0, -1.0,
-            -1.0, -1.0, -1.0,
             1.0,  1.0, -1.0,
             -1.0,  1.0, -1.0,
+            1.0, -1.0, -1.0,
+            -1.0, -1.0, -1.0,
 
             // Top face
             -1.0,  1.0, -1.0,
@@ -39,55 +73,63 @@ class Mesh(private val gl: WebGLRenderingContext) {
             1.0, -1.0, -1.0,
 
             // Right face
-            1.0, -1.0,  1.0,
-            1.0, -1.0, -1.0,
             1.0,  1.0,  1.0,
             1.0,  1.0, -1.0,
+            1.0, -1.0,  1.0,
+            1.0, -1.0, -1.0,
 
             // Left face
-            -1.0, -1.0, -1.0,
-            -1.0, -1.0,  1.0,
             -1.0,  1.0, -1.0,
             -1.0,  1.0,  1.0,
+            -1.0, -1.0, -1.0,
+            -1.0, -1.0,  1.0,
         ).map { it.toFloat() }.toTypedArray()
 
+        val front = block.front
+        val back = block.back
+        val top = block.top
+        val bottom = block.bottom
+        val left = block.left
+        val right = block.right
+
         // Define texture coordinates for each face
+        val m = 1 / 16f
         texCoords = arrayOf(
             // Front face
-            0.0, 0.0,
-            1.0, 0.0,
-            0.0, 1.0,
-            1.0, 1.0,
+            front.uv[0], front.uv[1],
+            front.uv[2], front.uv[3],
+            front.uv[4], front.uv[5],
+            front.uv[6], front.uv[7],
 
             // Back face
-            0.0, 0.0,
-            1.0, 0.0,
-            0.0, 1.0,
-            1.0, 1.0,
+            back.uv[0], back.uv[1],
+            back.uv[2], back.uv[3],
+            back.uv[4], back.uv[5],
+            back.uv[6], back.uv[7],
 
             // Top face
-            0.0, 0.0,
-            1.0, 0.0,
-            0.0, 1.0,
-            1.0, 1.0,
+            top.uv[0], top.uv[1],
+            top.uv[2], top.uv[3],
+            top.uv[4], top.uv[5],
+            top.uv[6], top.uv[7],
 
             // Bottom face
-            0.0, 0.0,
-            1.0, 0.0,
-            0.0, 1.0,
-            1.0, 1.0,
+            bottom.uv[0], bottom.uv[1],
+            bottom.uv[2], bottom.uv[3],
+            bottom.uv[4], bottom.uv[5],
+            bottom.uv[6], bottom.uv[7],
 
             // Right face
-            0.0, 0.0,
-            1.0, 0.0,
-            0.0, 1.0,
-            1.0, 1.0,
+            right.uv[0], right.uv[1],
+            right.uv[2], right.uv[3],
+            right.uv[4], right.uv[5],
+            right.uv[6], right.uv[7],
 
             // Left face
-            0.0, 0.0,
-            1.0, 0.0,
-            0.0, 1.0,
-            1.0, 1.0,
+            left.uv[0], left.uv[1],
+            left.uv[2], left.uv[3],
+            left.uv[4], left.uv[5],
+            left.uv[6], left.uv[7],
         ).map { it.toFloat() }.toTypedArray()
 
         // Define colors for each vertex (default to white)
@@ -173,6 +215,8 @@ class Texture(path: String, private val gl: WebGLRenderingContext) {
         val img = Image().apply { src = path }
         img.onload = {
             gl.bindTexture(WebGLRenderingContext.TEXTURE_2D, texture)
+            gl.texParameteri(WebGLRenderingContext.TEXTURE_2D, WebGLRenderingContext.TEXTURE_MIN_FILTER, WebGLRenderingContext.NEAREST)
+            gl.texParameteri(WebGLRenderingContext.TEXTURE_2D, WebGLRenderingContext.TEXTURE_MAG_FILTER, WebGLRenderingContext.NEAREST)
             gl.texImage2D(WebGLRenderingContext.TEXTURE_2D, 0, WebGLRenderingContext.RGBA, WebGLRenderingContext.RGBA, WebGLRenderingContext.UNSIGNED_BYTE, img)
             gl.generateMipmap(WebGLRenderingContext.TEXTURE_2D)
             ready = true
@@ -186,3 +230,5 @@ class Texture(path: String, private val gl: WebGLRenderingContext) {
         gl.bindTexture(WebGLRenderingContext.TEXTURE_2D, texture)
     }
 }
+
+data class UV(val x: Float, val y: Float)

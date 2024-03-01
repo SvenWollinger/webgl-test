@@ -1,3 +1,4 @@
+import io.wollinger.animals.Block
 import io.wollinger.animals.Mesh
 import io.wollinger.animals.Texture
 import io.wollinger.animals.utils.download
@@ -16,11 +17,10 @@ suspend fun init() {
     val canvas = document.getElementById("webgl-canvas") as HTMLCanvasElement
     val gl = canvas.getContext("webgl") as WebGLRenderingContext
 
-    val dirtMesh = Mesh(gl)
-    val grassMesh = Mesh(gl)
+    val dirtMesh = Mesh(gl, Block.DIRT)
+    val grassMesh = Mesh(gl, Block.TNT)
     var grassRotation = 0f
-    val dirtTexture = Texture("/img/dirt.png", gl)
-    val grassTexture = Texture("/img/grass.png", gl)
+    val terrainTexture = Texture("/terrain.png", gl)
 
     val vertexSource = download("/shaders/default.vertex.glsl").await()
     val fragmentSource = download("/shaders/default.fragment.glsl").await()
@@ -44,20 +44,33 @@ suspend fun init() {
     val samplerLocation = gl.getUniformLocation(shaderProgram, "uSampler")
     gl.uniform1i(samplerLocation, 0)
 
+    var aspect = 0f
+    val zNear = 0.1f
+    val zFar = 100f
+
+    val projectionMatrixLocation = gl.getUniformLocation(shaderProgram, "uProjectionMatrix")
+    val projectionMatrix = mat4.create()
+
     fun drawScene() {
+        if(canvas.width != window.innerWidth || canvas.height != window.innerHeight) {
+            canvas.width = window.innerWidth
+            canvas.height = window.innerHeight
+            gl.viewport(0, 0, canvas.width, canvas.height);
+            aspect = canvas.width / canvas.height.toFloat()
+        }
+
         gl.clearColor(0.0f, 0.0f, 0.0f, 1.0f)
         gl.clear(WebGLRenderingContext.COLOR_BUFFER_BIT or WebGLRenderingContext.DEPTH_BUFFER_BIT)
         gl.enable(WebGLRenderingContext.DEPTH_TEST)
 
-        // Set up projection matrix (Camera)
-        val projectionMatrixLocation = gl.getUniformLocation(shaderProgram, "uProjectionMatrix")
-        val projectionMatrix = mat4.create()
-        mat4.perspective(projectionMatrix, PI / 4, canvas.clientWidth / canvas.clientHeight, 0.1, 100.0)
+        mat4.perspective(projectionMatrix, PI / 4, aspect, zNear, zFar)
+        mat4.translate(projectionMatrix, projectionMatrix, arrayOf(0.0, 0.0, -12.0))
         gl.uniformMatrix4fv(projectionMatrixLocation, false, projectionMatrix as Float32Array)
 
+        terrainTexture.bind()
         //Draw static dirt block
         run {
-            dirtTexture.bind()
+            //dirtTexture.bind()
             val modelViewMatrixLocation = gl.getUniformLocation(shaderProgram, "uModelViewMatrix")
             val modelViewMatrix = mat4.create()
             mat4.translate(modelViewMatrix, modelViewMatrix, arrayOf(-0.0, 0.0, -6.0))
@@ -67,10 +80,10 @@ suspend fun init() {
 
         //Draw rotating grass block
         run {
-            grassTexture.bind()
+            //grassTexture.bind()
             val modelViewMatrixLocation = gl.getUniformLocation(shaderProgram, "uModelViewMatrix")
             val modelViewMatrix = mat4.create()
-            mat4.translate(modelViewMatrix, modelViewMatrix, arrayOf(-1.0, 1.0, -6.0))
+            mat4.translate(modelViewMatrix, modelViewMatrix, arrayOf(-4.0, 1.0, -5.0))
             mat4.rotate(modelViewMatrix, modelViewMatrix, grassRotation, arrayOf(1, 1, 0))
             gl.uniformMatrix4fv(modelViewMatrixLocation, false, modelViewMatrix as Float32Array)
             grassMesh.draw(shaderProgram)
