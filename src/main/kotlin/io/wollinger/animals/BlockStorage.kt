@@ -1,8 +1,14 @@
 package io.wollinger.animals
 
+import io.wollinger.animals.utils.addAll
+
 class BlockStorage(randomBlocks: Boolean = false) {
     private val size = 16
-    private val array = Array<Block?>(size * size * size) { if(randomBlocks) Block.entries.random() else null }
+    private val blocks = ArrayList<Block?>().apply {
+        addAll(Block.entries)
+        add(null) //Air
+    }
+    private val array = Array<Block?>(size * size * size) { if(randomBlocks) blocks.random() else null }
 
     private fun getIndex(x: Int, y: Int, z: Int): Int {
         return x + size * (y + size * z)
