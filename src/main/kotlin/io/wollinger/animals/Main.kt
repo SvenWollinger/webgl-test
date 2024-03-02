@@ -66,8 +66,8 @@ suspend fun init() {
 
     var locked = false
     canvas.onclick = {
-        canvas.asDynamic().requestPointerLock()
-        locked = true
+        //canvas.asDynamic().requestPointerLock()
+        //locked = true
         null
     }
     var rotX = 0f
@@ -128,6 +128,11 @@ suspend fun init() {
         if(!keys.contains(it.key)) keys.add(it.key)
     }
     window.onkeyup = { keys.remove(it.key) }
+
+    document.onpointerup = {
+        rMesh = BlockStorageMesher.mesh(gl, BlockStorage(true))
+        null
+    }
 
     var placed = false
     fun update(delta: Double) {
