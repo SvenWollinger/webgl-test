@@ -23,8 +23,6 @@ suspend fun main() {
     val shader = BaseShader(vertexSource, fragmentSource, gl)
 
     val buildInfo = dl<BuildInfo>("/build.json").await()
-    val test = GeoUtils.get().await()
-    println(test)
 
     Engine(
         webglCanvas = webglCanvas,

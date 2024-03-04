@@ -1,13 +1,12 @@
 package io.wollinger.animals
 
+import io.wollinger.animals.math.Matrix4
 import io.wollinger.animals.math.Vector3
 import io.wollinger.animals.utils.BuildInfo
 import io.wollinger.animals.utils.FPSCounter
 import io.wollinger.animals.utils.prettyString
-import kotlinx.browser.document
+import io.wollinger.animals.world.World
 import kotlinx.browser.window
-import mat4
-import org.khronos.webgl.Float32Array
 import org.w3c.dom.CanvasRenderingContext2D
 import org.w3c.dom.HTMLCanvasElement
 import kotlin.js.Date
@@ -32,22 +31,16 @@ class Engine(
 ) {
     private var showDebug = false
     private val skyColor = Color(130, 226, 255)
+    private val world = World()
 
-    private var grassRotation = 0f
     private val terrainTexture = Texture("/terrain.png", gl)
 
-    init {
-        document.onpointerup = {
-            rMesh.free()
-            rMesh = BlockStorageMesher.mesh(gl, BlockStorage(true))
-            null
-        }
-    }
-
-
-    private val camera = Camera(pos = Vector3(0f, 0f, -30f))
+    private val camera = Camera(pos = Vector3(0, 0, -30))
     private val projectionMatrixLocation = shader.getUniformLocation("uProjectionMatrix")
-    private val projectionMatrix = mat4.create()
+
+    private val viewMatrix = Matrix4()
+    private val projectionMatrix = Matrix4()
+    private val viewProjectionMatrix = Matrix4()
 
     private fun update(delta: Double) {
         val speed = 0.005f
@@ -58,11 +51,8 @@ class Engine(
         if(Input.isPressed("Control")) camera.pos.y += speed * delta.toFloat()
         if(Input.isPressed(" ")) camera.pos.y += -speed * delta.toFloat()
         if(Input.isJustPressed("f")) showDebug = !showDebug
-
-        grassRotation += 0.0005f * delta.toFloat()
     }
 
-    private var rMesh: Mesh = BlockStorageMesher.mesh(gl, BlockStorage(true))
     private fun render() {
         if(webglCanvas.width != window.innerWidth || webglCanvas.height != window.innerHeight) {
             webglCanvas.width = window.innerWidth
@@ -81,19 +71,23 @@ class Engine(
         //gl.enable(GL.BLEND)
         //gl.blendFunc(GL.SRC_ALPHA, GL.BLEND_SRC_ALPHA)
 
-        mat4.perspective(projectionMatrix, camera.fov, camera.aspect, camera.zNear, camera.zFar)
 
-        mat4.translate(projectionMatrix, projectionMatrix, arrayOf(camera.pos.x, camera.pos.y, camera.pos.z))
-        gl.uniformMatrix4fv(projectionMatrixLocation, false, projectionMatrix as Float32Array)
+        //Set up view matrix
+        viewMatrix.lookAt(camera.pos, Vector3(0, -5, 0))
 
+        //Set up projection matrix
+        projectionMatrix.perspective(camera.fov, camera.aspect, camera.zNear, camera.zFar)
+
+        //Combine
+        viewProjectionMatrix.multiply(projectionMatrix, viewMatrix)
+
+        gl.uniformMatrix4fv(projectionMatrixLocation, false, viewProjectionMatrix.toFloat32Array())
+
+        // bind terrain.png and render world
         terrainTexture.bind()
+        world.render(gl, shader)
 
-        val modelViewMatrixLocation = shader.getUniformLocation("uModelViewMatrix")
-        val modelViewMatrix = mat4.create()
-        mat4.rotate(modelViewMatrix, modelViewMatrix, grassRotation, arrayOf(0, 1, 0))
-        gl.uniformMatrix4fv(modelViewMatrixLocation, false, modelViewMatrix as Float32Array)
-        rMesh.draw(shader)
-
+        // 2d ui code
         hud.clearRect(0.0, 0.0, hudCanvas.width.toDouble(), hudCanvas.height.toDouble())
         if(showDebug) {
             var before = 0.0
@@ -104,6 +98,7 @@ class Engine(
                 before += height
             }
             drawDebugText("${fps.getString()} FPS")
+            drawDebugText(camera.pos.toString())
             drawDebugText(Date(buildInfo.timestamp).prettyString(), 40)
         }
     }
