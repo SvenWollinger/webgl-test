@@ -31,11 +31,13 @@ fun <T> ArrayList<T>.addAll(vararg args: T) {
     addAll(args.toList())
 }
 
+fun zeroFix(n: Int) = if(n > 9) "$n" else "0$n"
+
 fun Date.prettyString(): String {
-    val day = getDate()
-    val month = getMonth() + 1
+    val day = zeroFix(getDate())
+    val month = zeroFix(getMonth() + 1)
     val year = getFullYear()
-    val minute = if(getMinutes() > 9) getMinutes() else "0${getMinutes()}"
-    val hours = if(getHours() > 9) getHours() else "0${getHours()}"
+    val minute = zeroFix(getMinutes())
+    val hours = zeroFix(getHours())
     return "$day.$month.$year $hours:$minute"
 }

@@ -1,16 +1,28 @@
 package io.wollinger.animals
 
 import io.wollinger.animals.math.Vector3
+import io.wollinger.animals.utils.BuildInfo
 import io.wollinger.animals.utils.FPSCounter
+import io.wollinger.animals.utils.prettyString
 import kotlinx.browser.document
 import kotlinx.browser.window
 import mat4
 import org.khronos.webgl.Float32Array
+import org.w3c.dom.CanvasRenderingContext2D
 import org.w3c.dom.HTMLCanvasElement
+import kotlin.js.Date
 import kotlin.math.PI
 import org.khronos.webgl.WebGLRenderingContext as GL
 
-class Engine(private val canvas: HTMLCanvasElement, private val gl: GL, private val shader: BaseShader) {
+class Engine(
+    private val webglCanvas: HTMLCanvasElement,
+    private val hudCanvas: HTMLCanvasElement,
+    private val gl: GL,
+    private val hud: CanvasRenderingContext2D,
+    private val shader: BaseShader,
+    private val buildInfo: BuildInfo
+) {
+    private var showDebug = false
     private val skyColor = Color(130, 226, 255)
 
     private var grassRotation = 0f
@@ -41,19 +53,22 @@ class Engine(private val canvas: HTMLCanvasElement, private val gl: GL, private 
         if(Input.isPressed("d")) camPos.x += -speed * delta.toFloat()
         if(Input.isPressed("Control")) camPos.y += speed * delta.toFloat()
         if(Input.isPressed(" ")) camPos.y += -speed * delta.toFloat()
-        if(Input.isJustPressed("k")) println("test")
-        if(Input.isJustPressed("l")) rMesh.free()
+        if(Input.isJustPressed("f")) showDebug = !showDebug
+
+
 
         grassRotation += 0.0005f * delta.toFloat()
     }
 
     private var rMesh: Mesh = BlockStorageMesher.mesh(gl, BlockStorage(true))
     private fun render() {
-        if(canvas.width != window.innerWidth || canvas.height != window.innerHeight) {
-            canvas.width = window.innerWidth
-            canvas.height = window.innerHeight
-            gl.viewport(0, 0, canvas.width, canvas.height)
-            aspect = canvas.width / canvas.height.toFloat()
+        if(webglCanvas.width != window.innerWidth || webglCanvas.height != window.innerHeight) {
+            webglCanvas.width = window.innerWidth
+            webglCanvas.height = window.innerHeight
+            hudCanvas.width = window.innerWidth
+            hudCanvas.height = window.innerHeight
+            gl.viewport(0, 0, webglCanvas.width, webglCanvas.height)
+            aspect = webglCanvas.width / webglCanvas.height.toFloat()
         }
 
         gl.clearColor(skyColor.r, skyColor.g, skyColor.b, 1.0f)
@@ -76,6 +91,19 @@ class Engine(private val canvas: HTMLCanvasElement, private val gl: GL, private 
         mat4.rotate(modelViewMatrix, modelViewMatrix, grassRotation, arrayOf(0, 1, 0))
         gl.uniformMatrix4fv(modelViewMatrixLocation, false, modelViewMatrix as Float32Array)
         rMesh.draw(shader)
+
+        hud.clearRect(0.0, 0.0, hudCanvas.width.toDouble(), hudCanvas.height.toDouble())
+        if(showDebug) {
+            var before = 0.0
+            fun drawDebugText(text: String, height: Int = 50) {
+                hud.fillStyle = "black"
+                hud.font = "${height}px serif"
+                hud.fillText(text, 0.0, before + height)
+                before += height
+            }
+            drawDebugText("${fps.getString()} FPS")
+            drawDebugText(Date(buildInfo.timestamp).prettyString(), 40)
+        }
     }
 
     private var last = 0.0
