@@ -30,19 +30,19 @@ class Mesh(
         gl.bufferData(WebGLRenderingContext.ARRAY_BUFFER, Float32Array(colors), WebGLRenderingContext.STATIC_DRAW)
     }
 
-    fun draw(shaderProgram: WebGLProgram) {
+    fun draw(shaderProgram: BaseShader) {
         // Get attribute and uniform locations
-        val positionAttributeLocation = gl.getAttribLocation(shaderProgram, "aPosition")
+        val positionAttributeLocation = shaderProgram.getAttribLocation("aPosition")
         gl.enableVertexAttribArray(positionAttributeLocation)
         gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, vertexBuffer)
         gl.vertexAttribPointer(positionAttributeLocation, 3, WebGLRenderingContext.FLOAT, false, 0, 0)
 
-        val texCoordAttributeLocation = gl.getAttribLocation(shaderProgram, "aTexCoord")
+        val texCoordAttributeLocation = shaderProgram.getAttribLocation("aTexCoord")
         gl.enableVertexAttribArray(texCoordAttributeLocation)
         gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, texCoordBuffer)
         gl.vertexAttribPointer(texCoordAttributeLocation, 2, WebGLRenderingContext.FLOAT, false, 0, 0)
 
-        val colorAttributeLocation = gl.getAttribLocation(shaderProgram, "aColor")
+        val colorAttributeLocation = shaderProgram.getAttribLocation("aColor")
         gl.enableVertexAttribArray(colorAttributeLocation)
         gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, colorBuffer)
         gl.vertexAttribPointer(colorAttributeLocation, 3, WebGLRenderingContext.FLOAT, false, 0, 0)

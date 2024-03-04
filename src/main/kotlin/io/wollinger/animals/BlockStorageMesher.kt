@@ -170,8 +170,6 @@ object BlockStorageMesher {
                     val b = storage.get(x, y, z)
                     b == null || !b.solid
                 } catch (e: Exception) {
-                    if(0 > x) println("$x $y $z")
-
                     true
                 }
             }
