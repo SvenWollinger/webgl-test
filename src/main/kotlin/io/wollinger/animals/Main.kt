@@ -80,6 +80,9 @@ suspend fun init() {
         }
     }
 
+    val skyColor = Color(130, 226, 255)
+
+
     var x: Float = 0f
     var y: Float = 0f
     var z: Float = -30f
@@ -92,7 +95,7 @@ suspend fun init() {
             aspect = canvas.width / canvas.height.toFloat()
         }
 
-        gl.clearColor(0.0f, 0.0f, 0.0f, 1.0f)
+        gl.clearColor(skyColor.r, skyColor.g, skyColor.b, 1.0f)
         gl.clear(WebGLRenderingContext.COLOR_BUFFER_BIT or WebGLRenderingContext.DEPTH_BUFFER_BIT)
         gl.enable(WebGLRenderingContext.DEPTH_TEST)
         gl.enable(WebGLRenderingContext.BLEND)
