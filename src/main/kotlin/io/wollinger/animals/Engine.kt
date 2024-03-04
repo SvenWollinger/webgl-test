@@ -14,6 +14,14 @@ import kotlin.js.Date
 import kotlin.math.PI
 import org.khronos.webgl.WebGLRenderingContext as GL
 
+data class Camera(
+    var aspect: Float = 0f,
+    var fov: Float = PI.toFloat() / 4f,
+    val zNear: Float = 0.1f,
+    val zFar: Float = 100f,
+    val pos: Vector3 = Vector3(0f, 0f, 0f)
+)
+
 class Engine(
     private val webglCanvas: HTMLCanvasElement,
     private val hudCanvas: HTMLCanvasElement,
@@ -36,26 +44,20 @@ class Engine(
         }
     }
 
-    private var aspect = 0f
-    private val zNear = 0.1f
-    private val zFar = 100f
 
+    private val camera = Camera(pos = Vector3(0f, 0f, -30f))
     private val projectionMatrixLocation = shader.getUniformLocation("uProjectionMatrix")
     private val projectionMatrix = mat4.create()
 
-    private val camPos = Vector3(0f, 0f, -30f)
-
     private fun update(delta: Double) {
         val speed = 0.005f
-        if(Input.isPressed("w")) camPos.z += speed * delta.toFloat()
-        if(Input.isPressed("s")) camPos.z += -speed * delta.toFloat()
-        if(Input.isPressed("a")) camPos.x += speed * delta.toFloat()
-        if(Input.isPressed("d")) camPos.x += -speed * delta.toFloat()
-        if(Input.isPressed("Control")) camPos.y += speed * delta.toFloat()
-        if(Input.isPressed(" ")) camPos.y += -speed * delta.toFloat()
+        if(Input.isPressed("w")) camera.pos.z += speed * delta.toFloat()
+        if(Input.isPressed("s")) camera.pos.z += -speed * delta.toFloat()
+        if(Input.isPressed("a")) camera.pos.x += speed * delta.toFloat()
+        if(Input.isPressed("d")) camera.pos.x += -speed * delta.toFloat()
+        if(Input.isPressed("Control")) camera.pos.y += speed * delta.toFloat()
+        if(Input.isPressed(" ")) camera.pos.y += -speed * delta.toFloat()
         if(Input.isJustPressed("f")) showDebug = !showDebug
-
-
 
         grassRotation += 0.0005f * delta.toFloat()
     }
@@ -68,7 +70,7 @@ class Engine(
             hudCanvas.width = window.innerWidth
             hudCanvas.height = window.innerHeight
             gl.viewport(0, 0, webglCanvas.width, webglCanvas.height)
-            aspect = webglCanvas.width / webglCanvas.height.toFloat()
+            camera.aspect = webglCanvas.width / webglCanvas.height.toFloat()
         }
 
         gl.clearColor(skyColor.r, skyColor.g, skyColor.b, 1.0f)
@@ -79,9 +81,9 @@ class Engine(
         //gl.enable(GL.BLEND)
         //gl.blendFunc(GL.SRC_ALPHA, GL.BLEND_SRC_ALPHA)
 
-        mat4.perspective(projectionMatrix, PI / 4, aspect, zNear, zFar)
+        mat4.perspective(projectionMatrix, camera.fov, camera.aspect, camera.zNear, camera.zFar)
 
-        mat4.translate(projectionMatrix, projectionMatrix, arrayOf(camPos.x, camPos.y, camPos.z))
+        mat4.translate(projectionMatrix, projectionMatrix, arrayOf(camera.pos.x, camera.pos.y, camera.pos.z))
         gl.uniformMatrix4fv(projectionMatrixLocation, false, projectionMatrix as Float32Array)
 
         terrainTexture.bind()
