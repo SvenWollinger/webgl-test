@@ -46,6 +46,14 @@ enum class Block (
     GOLD_BLOCK(Atlas.GOLD_BLOCK),
     DIAMOND_BLOCK(Atlas.DIAMOND_BLOCK),
     DIAMOND_ORE(Atlas.DIAMOND_ORE),
+    BOOKSHELF(
+        top = Atlas.OAK_PLANKS,
+        bottom = Atlas.OAK_PLANKS,
+        front = Atlas.BOOKSHELF,
+        back = Atlas.BOOKSHELF,
+        left = Atlas.BOOKSHELF,
+        right = Atlas.BOOKSHELF
+    ),
     ;
     constructor(all: Atlas, solid: Boolean = true) : this(all, all, all, all, all, all, solid)
 }

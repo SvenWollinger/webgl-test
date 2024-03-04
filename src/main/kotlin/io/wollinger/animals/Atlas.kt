@@ -125,5 +125,11 @@ enum class Atlas(
         i * 3, i * 3,
         i * 2, i * 4,
         i * 3, i * 4
+    )),
+    BOOKSHELF(floatArrayOf(
+        i * 3, i * 2,
+        i * 4, i * 2,
+        i * 3, i * 3,
+        i * 4, i * 3
     ))
 }

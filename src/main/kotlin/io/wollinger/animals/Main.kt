@@ -117,10 +117,14 @@ suspend fun init() {
 
         //modelViewMatrix = mat4.create()
         //mat4.translate(modelViewMatrix, modelViewMatrix, arrayOf(-4.0, 1.0, -5.0))
-        //gl.uniformMatrix4fv(modelViewMatrixLocation, false, modelViewMatrix as Float32Array)
+        //gl.uniformMatrix4fv(modelViewMatrixLocation, true, modelViewMatrix as Float32Array)
         //blockStorageMesh.draw(shaderProgram)
     }
 
+
+    fun clearDepth() {
+        gl.clear(WebGLRenderingContext.DEPTH_BUFFER_BIT)
+    }
 
     var keys = ArrayList<String>()
 
