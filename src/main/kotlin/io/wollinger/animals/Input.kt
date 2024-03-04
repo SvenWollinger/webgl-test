@@ -1,20 +1,24 @@
 package io.wollinger.animals
 
-import kotlinx.browser.document
 import kotlinx.browser.window
 
 object Input {
-    private val keyMap = ArrayList<String>()
+    private val keyMap = HashMap<String, Boolean>()
 
     init {
-        window.onkeydown = { if(!keyMap.contains(it.key)) keyMap.add(it.key) }
+        window.onkeydown = {
+            if(!keyMap.contains(it.key)) {
+                keyMap[it.key] = false
+            }
+        }
         window.onkeyup = { keyMap.remove(it.key) }
     }
 
     fun isPressed(key: String) = keyMap.contains(key)
     fun isJustPressed(key: String): Boolean {
-        if(keyMap.contains(key)) {
-            keyMap.remove(key)
+        val checked = keyMap[key] ?: return false
+        if(!checked) {
+            keyMap[key] = true
             return true
         }
         return false

@@ -18,6 +18,7 @@ class Engine(private val canvas: HTMLCanvasElement, private val gl: GL, private 
 
     init {
         document.onpointerup = {
+            rMesh.free()
             rMesh = BlockStorageMesher.mesh(gl, BlockStorage(true))
             null
         }
@@ -40,6 +41,8 @@ class Engine(private val canvas: HTMLCanvasElement, private val gl: GL, private 
         if(Input.isPressed("d")) camPos.x += -speed * delta.toFloat()
         if(Input.isPressed("Control")) camPos.y += speed * delta.toFloat()
         if(Input.isPressed(" ")) camPos.y += -speed * delta.toFloat()
+        if(Input.isJustPressed("k")) println("test")
+        if(Input.isJustPressed("l")) rMesh.free()
 
         grassRotation += 0.0005f * delta.toFloat()
     }
@@ -56,8 +59,10 @@ class Engine(private val canvas: HTMLCanvasElement, private val gl: GL, private 
         gl.clearColor(skyColor.r, skyColor.g, skyColor.b, 1.0f)
         gl.clear(GL.COLOR_BUFFER_BIT or GL.DEPTH_BUFFER_BIT)
         gl.enable(GL.DEPTH_TEST)
-        gl.enable(GL.BLEND)
-        gl.blendFunc(GL.SRC_ALPHA, GL.BLEND_SRC_ALPHA)
+        gl.enable(GL.CULL_FACE)
+        gl.cullFace(GL.BACK)
+        //gl.enable(GL.BLEND)
+        //gl.blendFunc(GL.SRC_ALPHA, GL.BLEND_SRC_ALPHA)
 
         mat4.perspective(projectionMatrix, PI / 4, aspect, zNear, zFar)
 

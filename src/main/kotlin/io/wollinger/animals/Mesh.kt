@@ -1,12 +1,7 @@
 package io.wollinger.animals
 
 import org.khronos.webgl.Float32Array
-import org.khronos.webgl.WebGLProgram
 import org.khronos.webgl.WebGLRenderingContext
-import org.khronos.webgl.WebGLShader
-import org.w3c.dom.Image
-
-
 
 class Mesh(
     private val gl: WebGLRenderingContext,
@@ -30,6 +25,12 @@ class Mesh(
         gl.bufferData(WebGLRenderingContext.ARRAY_BUFFER, Float32Array(colors), WebGLRenderingContext.STATIC_DRAW)
     }
 
+    fun free() {
+        gl.deleteBuffer(vertexBuffer)
+        gl.deleteBuffer(texCoordBuffer)
+        gl.deleteBuffer(colorBuffer)
+    }
+
     fun draw(shaderProgram: BaseShader) {
         // Get attribute and uniform locations
         val positionAttributeLocation = shaderProgram.getAttribLocation("aPosition")
@@ -51,5 +52,4 @@ class Mesh(
             gl.drawArrays(WebGLRenderingContext.TRIANGLE_STRIP, it * 4, 4)
         }
     }
-
 }

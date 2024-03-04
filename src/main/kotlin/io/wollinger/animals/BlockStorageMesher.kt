@@ -33,16 +33,16 @@ object BlockStorageMesher {
 
             if(front) {
                 vertices.addAll(
-                    mX,  pY,  pZ,
-                    pX,  pY, pZ,
                     mX, mY, pZ,
                     pX, mY, pZ,
+                    mX,  pY,  pZ,
+                    pX,  pY, pZ,
                 )
                 texCoords.addAll(
-                    block.front.uv[0], block.front.uv[1],
-                    block.front.uv[2], block.front.uv[3],
                     block.front.uv[4], block.front.uv[5],
                     block.front.uv[6], block.front.uv[7],
+                    block.front.uv[0], block.front.uv[1],
+                    block.front.uv[2], block.front.uv[3],
                 )
                 colors.addAll(
                     1.0f, 1.0f, 1.0f, // Front face
@@ -55,16 +55,16 @@ object BlockStorageMesher {
 
             if(back) {
                 vertices.addAll(
-                    pX,  pY, mZ,
-                    mX,  pY, mZ,
                     pX, mY, mZ,
                     mX, mY, mZ,
+                    pX,  pY, mZ,
+                    mX,  pY, mZ,
                 )
                 texCoords.addAll(
-                    block.back.uv[0], block.back.uv[1],
-                    block.back.uv[2], block.back.uv[3],
                     block.back.uv[4], block.back.uv[5],
                     block.back.uv[6], block.back.uv[7],
+                    block.back.uv[0], block.back.uv[1],
+                    block.back.uv[2], block.back.uv[3],
                 )
                 colors.addAll(
                     1.0f, 1.0f, 1.0f,
@@ -121,16 +121,16 @@ object BlockStorageMesher {
 
             if(right) {
                 vertices.addAll(
-                    pX,  pY,  pZ,
-                    pX,  pY, mZ,
                     pX, mY,  pZ,
                     pX, mY, mZ,
+                    pX,  pY,  pZ,
+                    pX,  pY, mZ,
                 )
                 texCoords.addAll(
-                    block.right.uv[0], block.right.uv[1],
-                    block.right.uv[2], block.right.uv[3],
                     block.right.uv[4], block.right.uv[5],
-                    block.right.uv[6], block.right.uv[7]
+                    block.right.uv[6], block.right.uv[7],
+                    block.right.uv[0], block.right.uv[1],
+                    block.right.uv[2], block.right.uv[3]
                 )
                 colors.addAll(
                     1.0f, 1.0f, 1.0f,
@@ -143,16 +143,16 @@ object BlockStorageMesher {
 
             if(left) {
                 vertices.addAll(
-                    mX, pY, mZ,
-                    mX, pY, pZ,
                     mX, mY, mZ,
                     mX, mY, pZ,
+                    mX, pY, mZ,
+                    mX, pY, pZ,
                 )
                 texCoords.addAll(
-                    block.left.uv[0], block.left.uv[1],
-                    block.left.uv[2], block.left.uv[3],
                     block.left.uv[4], block.left.uv[5],
-                    block.left.uv[6], block.left.uv[7]
+                    block.left.uv[6], block.left.uv[7],
+                    block.left.uv[0], block.left.uv[1],
+                    block.left.uv[2], block.left.uv[3]
                 )
                 colors.addAll(
                     1.0f, 1.0f, 1.0f,
