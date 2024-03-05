@@ -1,5 +1,7 @@
 package io.wollinger.animals
 
+import io.wollinger.animals.graphics.BoundingBoxRenderer
+import io.wollinger.animals.math.BoundingBox
 import io.wollinger.animals.math.Matrix4
 import io.wollinger.animals.math.Vector3
 import io.wollinger.animals.utils.BuildInfo
@@ -17,7 +19,7 @@ data class Camera(
     var aspect: Float = 0f,
     var fov: Float = PI.toFloat() / 4f,
     val zNear: Float = 0.1f,
-    val zFar: Float = 100f,
+    val zFar: Float = 500f,
     val pos: Vector3 = Vector3(0f, 0f, 0f)
 )
 
@@ -35,7 +37,7 @@ class Engine(
 
     private val terrainTexture = Texture("/terrain.png", gl)
 
-    private val camera = Camera(pos = Vector3(0, 0, -30))
+    private val camera = Camera(pos = Vector3(0, 0, -10))
     private val projectionMatrixLocation = shader.getUniformLocation("uProjectionMatrix")
 
     private val viewMatrix = Matrix4()
@@ -48,12 +50,15 @@ class Engine(
         if(Input.isPressed("s")) camera.pos.z += -speed * delta.toFloat()
         if(Input.isPressed("a")) camera.pos.x += speed * delta.toFloat()
         if(Input.isPressed("d")) camera.pos.x += -speed * delta.toFloat()
-        if(Input.isPressed("Control")) camera.pos.y += speed * delta.toFloat()
-        if(Input.isPressed(" ")) camera.pos.y += -speed * delta.toFloat()
+        if(Input.isPressed("c")) camera.pos.y += -speed * delta.toFloat()
+        if(Input.isPressed(" ")) camera.pos.y += speed * delta.toFloat()
         if(Input.isJustPressed("f")) showDebug = !showDebug
     }
 
+    private val bboxRenderer = BoundingBoxRenderer(gl)
     private fun render() {
+        shader.use()
+
         if(webglCanvas.width != window.innerWidth || webglCanvas.height != window.innerHeight) {
             webglCanvas.width = window.innerWidth
             webglCanvas.height = window.innerHeight
@@ -73,7 +78,7 @@ class Engine(
 
 
         //Set up view matrix
-        viewMatrix.lookAt(camera.pos, Vector3(0, -5, 0))
+        viewMatrix.lookAt(camera.pos, Vector3(0, 0, 0))
 
         //Set up projection matrix
         projectionMatrix.perspective(camera.fov, camera.aspect, camera.zNear, camera.zFar)
@@ -86,6 +91,7 @@ class Engine(
         // bind terrain.png and render world
         terrainTexture.bind()
         world.render(gl, shader)
+        bboxRenderer.draw(BoundingBox(Vector3(0, 0, 0), Vector3(1, 3, 2)), viewProjectionMatrix)
 
         // 2d ui code
         hud.clearRect(0.0, 0.0, hudCanvas.width.toDouble(), hudCanvas.height.toDouble())

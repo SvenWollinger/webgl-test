@@ -22,6 +22,8 @@ suspend fun main() {
     val fragmentSource = download("/shaders/default.fragment.glsl").await()
     val shader = BaseShader(vertexSource, fragmentSource, gl)
 
+    Resources.load()
+
     val buildInfo = dl<BuildInfo>("/build.json").await()
 
     Engine(

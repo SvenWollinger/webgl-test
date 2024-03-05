@@ -27,6 +27,9 @@ class BaseShader(vertex: String, fragment: String, private val gl: WebGLRenderin
         gl.uniform1i(samplerLocation, 0)
     }
 
+    fun use() = gl.useProgram(shaderProgram)
+
+
     fun getAttribLocation(loc: String): Int = gl.getAttribLocation(shaderProgram, loc)
     fun getUniformLocation(loc: String) = gl.getUniformLocation(shaderProgram, loc)
 }
