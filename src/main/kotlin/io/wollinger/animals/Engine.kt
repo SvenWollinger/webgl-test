@@ -3,6 +3,7 @@ package io.wollinger.animals
 import io.wollinger.animals.graphics.BoundingBoxRenderer
 import io.wollinger.animals.math.BoundingBox
 import io.wollinger.animals.math.Matrix4
+import io.wollinger.animals.math.Quaternion
 import io.wollinger.animals.math.Vector3
 import io.wollinger.animals.utils.BuildInfo
 import io.wollinger.animals.utils.FPSCounter
@@ -20,7 +21,8 @@ data class Camera(
     var fov: Float = PI.toFloat() / 4f,
     val zNear: Float = 0.1f,
     val zFar: Float = 500f,
-    val pos: Vector3 = Vector3(0f, 0f, 0f)
+    val pos: Vector3 = Vector3(0f, 0f, 0f),
+    val rotation: Quaternion = Quaternion()
 )
 
 class Engine(
@@ -40,7 +42,7 @@ class Engine(
     private val camera = Camera(pos = Vector3(0, 0, -10))
     private val projectionMatrixLocation = shader.getUniformLocation("uProjectionMatrix")
 
-    private val viewMatrix = Matrix4()
+    private var viewMatrix = Matrix4()
     private val projectionMatrix = Matrix4()
     private val viewProjectionMatrix = Matrix4()
 
@@ -77,8 +79,35 @@ class Engine(
         //gl.blendFunc(GL.SRC_ALPHA, GL.BLEND_SRC_ALPHA)
 
 
+        val lookLeft = Input.isPressed("ArrowLeft")
+        val lookRight = Input.isPressed("ArrowRight")
+
+        camera.rotation.rotateY(if(lookLeft) -0.05F else if(lookRight) 0.05F else 0f)
+
+        val dirZ = if(Input.isPressed("ArrowUp")) 1 else if(Input.isPressed("ArrowDown")) -1 else 0
+
+        val dir = Vector3(0, 0, dirZ)
+        dir.transformQuat(camera.rotation)
+        dir.normalize()
+        dir.scale(0.1f)
+
+        val forward = Vector3(dir.x, dir.y, dir.z).apply { rotateY(camera.rotation.yaw()) }
+        camera.pos.x += forward.x
+        camera.pos.y += forward.y
+        camera.pos.z += forward.z
+
+        //camera.pos.x += dir.x
+        //camera.pos.y += dir.y
+        //camera.pos.z += dir.z
+
+        val rotation = Matrix4().apply { fromQuat(camera.rotation) }
+        val translation = Matrix4().apply { translate(camera.pos) }
+        viewMatrix = Matrix4()
+        viewMatrix.multiply(rotation, translation)
+
+
         //Set up view matrix
-        viewMatrix.lookAt(camera.pos, Vector3(0, 0, 0))
+        //viewMatrix.lookAt(camera.pos, Vector3(0, 0, 0))
 
         //Set up projection matrix
         projectionMatrix.perspective(camera.fov, camera.aspect, camera.zNear, camera.zFar)
@@ -88,10 +117,15 @@ class Engine(
 
         gl.uniformMatrix4fv(projectionMatrixLocation, false, viewProjectionMatrix.toFloat32Array())
 
+        //val inverse = Matrix4()
+        //Matrix4.invert(inverse, viewProjectionMatrix)
+        //println(inverse.getForwardVector())
+
+
         // bind terrain.png and render world
         terrainTexture.bind()
         world.render(gl, shader)
-        bboxRenderer.draw(BoundingBox(Vector3(0, 0, 0), Vector3(1, 3, 2)), viewProjectionMatrix)
+        bboxRenderer.draw(BoundingBox(Vector3(0, 0, 0), Vector3(16, 16, 16)), viewProjectionMatrix)
 
         // 2d ui code
         hud.clearRect(0.0, 0.0, hudCanvas.width.toDouble(), hudCanvas.height.toDouble())

@@ -6,6 +6,10 @@ import org.khronos.webgl.Float32Array
 class Matrix4 {
     private val data = mat4.create()
 
+    fun fromQuat(quaternion: Quaternion) {
+        mat4.fromQuat(data, quaternion.data)
+    }
+
     fun perspective(fov: Float, aspect: Float, near: Float, far: Float) {
         mat4.perspective(data, fov, aspect, near, far)
     }
@@ -36,4 +40,16 @@ class Matrix4 {
     }
 
     fun toFloat32Array() = data as Float32Array
+
+    fun getForwardVector(): Vector3 {
+        return Vector3(
+            -data[8] as Float, -data[9] as Float, -data[10] as Float
+        ).normalize()
+    }
+
+    companion object {
+        fun invert(out: Matrix4, from: Matrix4) {
+            mat4.invert(out.data, from.data)
+        }
+    }
 }
