@@ -41,3 +41,9 @@ fun Date.prettyString(): String {
     val hours = zeroFix(getHours())
     return "$day.$month.$year $hours:$minute"
 }
+
+fun <T : Comparable<T>> ClosedFloatingPointRange<T>.cap(value: T): T {
+    return if(value >= endInclusive) endInclusive
+    else if(value <= start) start
+    else value
+}

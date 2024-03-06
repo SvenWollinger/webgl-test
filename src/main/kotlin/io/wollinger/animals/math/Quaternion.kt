@@ -10,6 +10,10 @@ class Quaternion {
     val z: Float get() = quat.data[2] as Float
     val w: Float get() = quat.data[3] as Float
 
+    fun setAxisAngle(axis: Vector3, rad: Float) {
+        quat.setAxisAngle(data, axis.toArray(), rad)
+    }
+
     fun rotateY(rad: Float) {
         quat.rotateY(data, data, rad)
     }

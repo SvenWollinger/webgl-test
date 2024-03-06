@@ -7,6 +7,7 @@ import io.wollinger.animals.math.Quaternion
 import io.wollinger.animals.math.Vector3
 import io.wollinger.animals.utils.BuildInfo
 import io.wollinger.animals.utils.FPSCounter
+import io.wollinger.animals.utils.cap
 import io.wollinger.animals.utils.prettyString
 import io.wollinger.animals.world.World
 import kotlinx.browser.window
@@ -40,7 +41,7 @@ class Engine(
     private val terrainTexture = Texture("/terrain.png", gl)
 
     private val camera = Camera(pos = Vector3(0, 10, -10)).apply {
-        rotation.rotateX(45f)
+        rotation.rotateX(0f)
     }
     private val projectionMatrixLocation = shader.getUniformLocation("uProjectionMatrix")
 
@@ -49,9 +50,29 @@ class Engine(
     private val viewProjectionMatrix = Matrix4()
 
     private val dragSensitivity = 0.001f
+    private val zoomRange = 15f..40f
+    private val rotationRange = 60f
+
+    var rotX = 1.0f
     private fun update(delta: Double) {
         if(Input.isJustPressed("f")) showDebug = !showDebug
+        if(Input.isJustPressed("z")) do3d = !do3d
 
+        camera.pos.y += Input.scroll.toFloat() * 0.005f
+        camera.pos.y = zoomRange.cap(camera.pos.y)
+        //camera.rotation.rotateX(Input.scroll.toFloat() * 0.0005f)
+        if(Input.isJustPressed("o")) {
+            println("Rotate")
+            //camera.rotation.rotateX(0.10f)
+            rotX += 0.1f
+        }
+        if(Input.isJustPressed("p")) {
+            println("Rotate")
+            //camera.rotation.rotateX(0.10f)
+            rotX -= 0.1f
+        }
+        camera.rotation.setAxisAngle(Vector3(1, 0, 0), rotX)
+        Input.scroll = 0.0
         camera.pos.add(
             x = -Input.dragDelta.x * delta * dragSensitivity,
             y = 0,
@@ -60,6 +81,7 @@ class Engine(
         Input.dragDelta.set(0, 0)
     }
 
+    var do3d = true
     private val bboxRenderer = BoundingBoxRenderer(gl)
     private fun render() {
         shader.use()
@@ -86,9 +108,19 @@ class Engine(
         val translation = Matrix4().apply { translate(posPos) }
         viewMatrix = Matrix4()
         viewMatrix.multiply(rotation, translation)
-        //Set up projection matrix
-        projectionMatrix.perspective(camera.fov, camera.aspect, camera.zNear, camera.zFar)
+        if(do3d) {
+            projectionMatrix.perspective(camera.fov, camera.aspect, camera.zNear, camera.zFar)
+        } else {
+            val orthoWidth = camera.pos.y
+            val orthoHeight = orthoWidth / camera.aspect
 
+            projectionMatrix.ortho(
+                -orthoWidth / 2f, orthoWidth / 2f,
+                -orthoHeight / 2f, orthoHeight / 2f,
+                camera.zNear, camera.zFar
+            )
+        }
+        
         //Combine
         viewProjectionMatrix.multiply(projectionMatrix, viewMatrix)
 

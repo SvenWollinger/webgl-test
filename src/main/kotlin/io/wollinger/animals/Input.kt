@@ -12,14 +12,17 @@ object Input {
 
     private val startDrag = Vector2()
     var dragDelta = Vector2()
+    var scroll = 0.0
 
     init {
+        window.onwheel = {
+            scroll = it.deltaY
+            null
+        }
         window.onpointermove = {
             if(dragging) {
                 dragDelta.add(it.clientX - startDrag.x, it.clientY - startDrag.y)
-
-                startDrag.x = it.clientX.toDouble()
-                startDrag.y = it.clientY.toDouble()
+                startDrag.set(x = it.clientX, y = it.clientY)
             }
         }
         window.onpointerdown = {

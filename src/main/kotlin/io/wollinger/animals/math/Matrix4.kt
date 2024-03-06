@@ -43,6 +43,12 @@ class Matrix4 {
 
     fun getForwardVector() = Vector3(-data[8] as Float, -data[9] as Float, -data[10] as Float).nor()
 
+
+
+    fun ortho(left: Float, right: Float, bottom: Float, top: Float, near: Float, far: Float) {
+        mat4.ortho(data, left, right, bottom, top, near, far)
+    }
+
     companion object {
         fun invert(out: Matrix4, from: Matrix4) {
             mat4.invert(out.data, from.data)
