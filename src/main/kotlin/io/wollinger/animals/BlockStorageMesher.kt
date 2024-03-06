@@ -24,12 +24,12 @@ object BlockStorageMesher {
             front: Boolean,
             back: Boolean
         ) {
-            val pX = x + 0.5f - 8f
-            val mX = x + -0.5f - 8f
-            val pY = y + 0.5f - 8f
-            val mY = y + -0.5f - 8f
-            val pZ = z + 0.5f - 8f
-            val mZ = z + -0.5f - 8f
+            val pX = x + 0.5f + 0.5f
+            val mX = x + -0.5f + 0.5f
+            val pY = y + 0.5f + 0.5f
+            val mY = y + -0.5f + 0.5f
+            val pZ = z + 0.5f + 0.5f
+            val mZ = z + -0.5f + 0.5f
 
             if(front) {
                 vertices.addAll(
@@ -180,7 +180,7 @@ object BlockStorageMesher {
                     y = y,
                     z= z,
                     top = get(x, y + 1, z),
-                    bottom = get(x, y - 1, z),
+                    bottom = false,//get(x, y - 1, z),
                     left = get(x - 1, y, z),
                     right = get(x + 1, y, z),
                     front = get(x, y, z + 1),

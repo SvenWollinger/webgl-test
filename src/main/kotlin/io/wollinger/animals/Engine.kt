@@ -3,6 +3,7 @@ package io.wollinger.animals
 import io.wollinger.animals.graphics.BoundingBoxRenderer
 import io.wollinger.animals.math.BoundingBox
 import io.wollinger.animals.math.Matrix4
+import io.wollinger.animals.math.Quaternion
 import io.wollinger.animals.math.Vector3
 import io.wollinger.animals.utils.BuildInfo
 import io.wollinger.animals.utils.FPSCounter
@@ -20,7 +21,8 @@ data class Camera(
     var fov: Float = PI.toFloat() / 4f,
     val zNear: Float = 0.1f,
     val zFar: Float = 500f,
-    val pos: Vector3 = Vector3(0f, 0f, 0f)
+    val pos: Vector3 = Vector3(0f, 0f, 0f),
+    val rotation: Quaternion = Quaternion()
 )
 
 class Engine(
@@ -37,22 +39,25 @@ class Engine(
 
     private val terrainTexture = Texture("/terrain.png", gl)
 
-    private val camera = Camera(pos = Vector3(0, 0, -10))
+    private val camera = Camera(pos = Vector3(0, 10, -10)).apply {
+        rotation.rotateX(45f)
+    }
     private val projectionMatrixLocation = shader.getUniformLocation("uProjectionMatrix")
 
-    private val viewMatrix = Matrix4()
+    private var viewMatrix = Matrix4()
     private val projectionMatrix = Matrix4()
     private val viewProjectionMatrix = Matrix4()
 
+    private val dragSensitivity = 0.001f
     private fun update(delta: Double) {
-        val speed = 0.005f
-        if(Input.isPressed("w")) camera.pos.z += speed * delta.toFloat()
-        if(Input.isPressed("s")) camera.pos.z += -speed * delta.toFloat()
-        if(Input.isPressed("a")) camera.pos.x += speed * delta.toFloat()
-        if(Input.isPressed("d")) camera.pos.x += -speed * delta.toFloat()
-        if(Input.isPressed("c")) camera.pos.y += -speed * delta.toFloat()
-        if(Input.isPressed(" ")) camera.pos.y += speed * delta.toFloat()
         if(Input.isJustPressed("f")) showDebug = !showDebug
+
+        camera.pos.add(
+            x = -Input.dragDelta.x * delta * dragSensitivity,
+            y = 0,
+            z = -Input.dragDelta.y * delta * dragSensitivity
+        )
+        Input.dragDelta.set(0, 0)
     }
 
     private val bboxRenderer = BoundingBoxRenderer(gl)
@@ -76,10 +81,11 @@ class Engine(
         //gl.enable(GL.BLEND)
         //gl.blendFunc(GL.SRC_ALPHA, GL.BLEND_SRC_ALPHA)
 
-
-        //Set up view matrix
-        viewMatrix.lookAt(camera.pos, Vector3(0, 0, 0))
-
+        val posPos = Vector3(camera.pos).apply { invert() }
+        val rotation = Matrix4().apply { fromQuat(camera.rotation) }
+        val translation = Matrix4().apply { translate(posPos) }
+        viewMatrix = Matrix4()
+        viewMatrix.multiply(rotation, translation)
         //Set up projection matrix
         projectionMatrix.perspective(camera.fov, camera.aspect, camera.zNear, camera.zFar)
 
@@ -88,10 +94,15 @@ class Engine(
 
         gl.uniformMatrix4fv(projectionMatrixLocation, false, viewProjectionMatrix.toFloat32Array())
 
+        //val inverse = Matrix4()
+        //Matrix4.invert(inverse, viewProjectionMatrix)
+        //println(inverse.getForwardVector())
+
+
         // bind terrain.png and render world
         terrainTexture.bind()
         world.render(gl, shader)
-        bboxRenderer.draw(BoundingBox(Vector3(0, 0, 0), Vector3(1, 3, 2)), viewProjectionMatrix)
+        //bboxRenderer.draw(BoundingBox(Vector3(0, 0, 0), Vector3(16, 16, 16)), viewProjectionMatrix)
 
         // 2d ui code
         hud.clearRect(0.0, 0.0, hudCanvas.width.toDouble(), hudCanvas.height.toDouble())
@@ -105,6 +116,7 @@ class Engine(
             }
             drawDebugText("${fps.getString()} FPS")
             drawDebugText(camera.pos.toString())
+            drawDebugText(camera.rotation.quaternionToRotationVector().toString())
             drawDebugText(Date(buildInfo.timestamp).prettyString(), 40)
         }
     }

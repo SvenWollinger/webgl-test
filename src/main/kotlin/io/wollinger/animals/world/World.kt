@@ -17,8 +17,8 @@ class World {
             val chunk = Chunk(key)
             chunks[key] = chunk
         }
-        for(x in -4 until 4) {
-            for(z in -4 until 4) {
+        for(x in -1 until 1) {
+            for(z in -1 until 1) {
                 create(x, 0, z)
             }
         }

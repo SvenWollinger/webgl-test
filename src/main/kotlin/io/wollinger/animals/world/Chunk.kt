@@ -21,6 +21,10 @@ class Chunk(val x: Int, val y: Int, val z: Int) {
         data.set(4, 3, 6, Block.OAK_LOG)
         data.set(4, 4, 6, Block.OAK_LOG)
         data.set(4, 5, 6, Block.OAK_LOG)
+        data.set(0, 0, 0, Block.BEDROCK)
+        data.set(0, 1, 0, Block.BEDROCK)
+        data.set(0, 2, 0, Block.BEDROCK)
+        data.set(0, 3, 0, Block.BEDROCK)
 
     }
 
