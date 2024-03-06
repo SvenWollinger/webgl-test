@@ -184,7 +184,7 @@ object BlockStorageMesher {
                     left = get(x - 1, y, z),
                     right = get(x + 1, y, z),
                     front = get(x, y, z + 1),
-                    back = get(x, y, z - 1)
+                    back = false//get(x, y, z - 1)
                 )
             }
         }
