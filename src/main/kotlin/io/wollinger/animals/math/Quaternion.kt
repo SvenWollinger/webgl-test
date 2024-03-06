@@ -5,16 +5,24 @@ import quat
 class Quaternion {
     val data = quat.create()
 
+    val x: Float get() = quat.data[0] as Float
+    val y: Float get() = quat.data[1] as Float
+    val z: Float get() = quat.data[2] as Float
+    val w: Float get() = quat.data[3] as Float
+
     fun rotateY(rad: Float) {
         quat.rotateY(data, data, rad)
     }
 
+    fun rotateX(rad: Float) {
+        quat.rotateX(data, data, rad)
+    }
+
+    fun rotateZ(rad: Float) {
+        quat.rotateZ(data, data, rad)
+    }
+
     fun yaw(): Float {
-        // Convert quaternion to Euler angles
-
-
-        // Extract yaw angle (rotation around the vertical axis, typically the y-axis)
-        // The order of angles in euler is [pitch, yaw, roll]
         return toEulerAngles().y
     }
 
@@ -45,5 +53,15 @@ class Quaternion {
         euler.z = kotlin.math.atan2(siny_cosp, cosy_cosp)
 
         return euler
+    }
+
+    fun quaternionToRotationVector(): Vector3 {
+        // Convert quaternion to Euler angles
+        val e = toEulerAngles()
+
+        // Convert Euler angles to rotation vector
+        val rotationVector = Vector3(e.y, e.z, e.x)
+
+        return rotationVector
     }
 }

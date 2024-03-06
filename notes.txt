@@ -1,0 +1,14 @@
+        //val dirZ = if(Input.isPressed("ArrowUp")) 1 else if(Input.isPressed("ArrowDown")) -1 else 0
+        //val move = Vector3()
+//
+        //val dir = Vector3(0, 0, dirZ)
+        //dir.transformQuat(camera.rotation)
+        //dir.nor()
+        //dir.scale(0.1f)
+
+        //            val oldPitchAxis = tmp.set(camera.direction).crs(camera.up).nor()
+        //            val newDirection = tmp2.set(camera.direction).rotate(tmp, deltaY)
+        //            val newPitchAxis = tmp3.set(tmp2).crs(camera.up)
+        //            if (!newPitchAxis.hasOppositeDirection(oldPitchAxis))
+        //                camera.direction.set(newDirection)
+        //val oldPitchAxis = Vector3(camera.rotation.toEulerAngles()).crs(Vector3.UP).normalize()

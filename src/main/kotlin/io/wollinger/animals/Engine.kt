@@ -39,22 +39,25 @@ class Engine(
 
     private val terrainTexture = Texture("/terrain.png", gl)
 
-    private val camera = Camera(pos = Vector3(0, 0, -10))
+    private val camera = Camera(pos = Vector3(0, 10, -10)).apply {
+        rotation.rotateX(45f)
+    }
     private val projectionMatrixLocation = shader.getUniformLocation("uProjectionMatrix")
 
     private var viewMatrix = Matrix4()
     private val projectionMatrix = Matrix4()
     private val viewProjectionMatrix = Matrix4()
 
+    private val dragSensitivity = 0.001f
     private fun update(delta: Double) {
-        val speed = 0.005f
-        if(Input.isPressed("w")) camera.pos.z += speed * delta.toFloat()
-        if(Input.isPressed("s")) camera.pos.z += -speed * delta.toFloat()
-        if(Input.isPressed("a")) camera.pos.x += speed * delta.toFloat()
-        if(Input.isPressed("d")) camera.pos.x += -speed * delta.toFloat()
-        if(Input.isPressed("c")) camera.pos.y += -speed * delta.toFloat()
-        if(Input.isPressed(" ")) camera.pos.y += speed * delta.toFloat()
         if(Input.isJustPressed("f")) showDebug = !showDebug
+
+        camera.pos.add(
+            x = -Input.dragDelta.x * delta * dragSensitivity,
+            y = 0,
+            z = -Input.dragDelta.y * delta * dragSensitivity
+        )
+        Input.dragDelta.set(0, 0)
     }
 
     private val bboxRenderer = BoundingBoxRenderer(gl)
@@ -78,37 +81,11 @@ class Engine(
         //gl.enable(GL.BLEND)
         //gl.blendFunc(GL.SRC_ALPHA, GL.BLEND_SRC_ALPHA)
 
-
-        val lookLeft = Input.isPressed("ArrowLeft")
-        val lookRight = Input.isPressed("ArrowRight")
-
-        camera.rotation.rotateY(if(lookLeft) -0.05F else if(lookRight) 0.05F else 0f)
-
-        val dirZ = if(Input.isPressed("ArrowUp")) 1 else if(Input.isPressed("ArrowDown")) -1 else 0
-
-        val dir = Vector3(0, 0, dirZ)
-        dir.transformQuat(camera.rotation)
-        dir.normalize()
-        dir.scale(0.1f)
-
-        val forward = Vector3(dir.x, dir.y, dir.z).apply { rotateY(camera.rotation.yaw()) }
-        camera.pos.x += forward.x
-        camera.pos.y += forward.y
-        camera.pos.z += forward.z
-
-        //camera.pos.x += dir.x
-        //camera.pos.y += dir.y
-        //camera.pos.z += dir.z
-
+        val posPos = Vector3(camera.pos).apply { invert() }
         val rotation = Matrix4().apply { fromQuat(camera.rotation) }
-        val translation = Matrix4().apply { translate(camera.pos) }
+        val translation = Matrix4().apply { translate(posPos) }
         viewMatrix = Matrix4()
         viewMatrix.multiply(rotation, translation)
-
-
-        //Set up view matrix
-        //viewMatrix.lookAt(camera.pos, Vector3(0, 0, 0))
-
         //Set up projection matrix
         projectionMatrix.perspective(camera.fov, camera.aspect, camera.zNear, camera.zFar)
 
@@ -125,7 +102,7 @@ class Engine(
         // bind terrain.png and render world
         terrainTexture.bind()
         world.render(gl, shader)
-        bboxRenderer.draw(BoundingBox(Vector3(0, 0, 0), Vector3(16, 16, 16)), viewProjectionMatrix)
+        //bboxRenderer.draw(BoundingBox(Vector3(0, 0, 0), Vector3(16, 16, 16)), viewProjectionMatrix)
 
         // 2d ui code
         hud.clearRect(0.0, 0.0, hudCanvas.width.toDouble(), hudCanvas.height.toDouble())
@@ -139,6 +116,7 @@ class Engine(
             }
             drawDebugText("${fps.getString()} FPS")
             drawDebugText(camera.pos.toString())
+            drawDebugText(camera.rotation.quaternionToRotationVector().toString())
             drawDebugText(Date(buildInfo.timestamp).prettyString(), 40)
         }
     }

@@ -180,7 +180,7 @@ object BlockStorageMesher {
                     y = y,
                     z= z,
                     top = get(x, y + 1, z),
-                    bottom = get(x, y - 1, z),
+                    bottom = false,//get(x, y - 1, z),
                     left = get(x - 1, y, z),
                     right = get(x + 1, y, z),
                     front = get(x, y, z + 1),

@@ -41,11 +41,7 @@ class Matrix4 {
 
     fun toFloat32Array() = data as Float32Array
 
-    fun getForwardVector(): Vector3 {
-        return Vector3(
-            -data[8] as Float, -data[9] as Float, -data[10] as Float
-        ).normalize()
-    }
+    fun getForwardVector() = Vector3(-data[8] as Float, -data[9] as Float, -data[10] as Float).nor()
 
     companion object {
         fun invert(out: Matrix4, from: Matrix4) {
