@@ -1,6 +1,8 @@
 package io.wollinger.animals.math
 
 data class Vector2(var x: Double = 0.0, var y: Double = 0.0) {
+    constructor(x: Int = 0, y: Int = 0): this(x.toDouble(), y.toDouble())
+    constructor(): this(0.0, 0.0)
     fun set(x: Double, y: Double) {
         this.x = x
         this.y = y

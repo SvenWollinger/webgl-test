@@ -1,10 +1,8 @@
 package io.wollinger.animals
 
 import io.wollinger.animals.graphics.BoundingBoxRenderer
-import io.wollinger.animals.math.BoundingBox
-import io.wollinger.animals.math.Matrix4
-import io.wollinger.animals.math.Quaternion
-import io.wollinger.animals.math.Vector3
+import io.wollinger.animals.graphics.UIButton
+import io.wollinger.animals.math.*
 import io.wollinger.animals.utils.BuildInfo
 import io.wollinger.animals.utils.FPSCounter
 import io.wollinger.animals.utils.cap
@@ -53,6 +51,38 @@ class Engine(
     private val zoomRange = 15f..40f
     private val rotationRange = 60f
 
+    init {
+        UIManager.add(
+            UIButton(
+                image = Resources.button3d,
+                onResize = { width, height ->
+                    val size = width / 16
+                    Rectangle(0, height - size, size, size)
+                },
+                onClick = { do3d = false },
+                drawCondition = { do3d }
+            ),
+            UIButton(
+                image = Resources.button2d,
+                onResize = { width, height ->
+                    val size = width / 16
+                    Rectangle(0, height - size, size, size)
+                },
+                onClick = { do3d = true },
+                drawCondition = { !do3d }
+            ),
+            UIButton(
+                image = Resources.buttonDebug,
+                onResize = { width, height ->
+                    val size = width / 16
+                    val margin = size / 4
+                    Rectangle(size + margin, height - size, size * 2, size)
+                },
+                onClick = { showDebug = !showDebug }
+            )
+        )
+    }
+
     var rotX = 1.0f
     private fun update(delta: Double) {
         if(Input.isJustPressed("f")) showDebug = !showDebug
@@ -79,6 +109,8 @@ class Engine(
             z = -Input.dragDelta.y * delta * dragSensitivity
         )
         Input.dragDelta.set(0, 0)
+
+        Input.didJustTouch?.let { UIManager.clickEvent(it) }
     }
 
     var do3d = true
@@ -93,6 +125,7 @@ class Engine(
             hudCanvas.height = window.innerHeight
             gl.viewport(0, 0, webglCanvas.width, webglCanvas.height)
             camera.aspect = webglCanvas.width / webglCanvas.height.toFloat()
+            UIManager.resize(webglCanvas.width, webglCanvas.height)
         }
 
         gl.clearColor(skyColor.r, skyColor.g, skyColor.b, 1.0f)
@@ -120,7 +153,7 @@ class Engine(
                 camera.zNear, camera.zFar
             )
         }
-        
+
         //Combine
         viewProjectionMatrix.multiply(projectionMatrix, viewMatrix)
 
@@ -138,6 +171,8 @@ class Engine(
 
         // 2d ui code
         hud.clearRect(0.0, 0.0, hudCanvas.width.toDouble(), hudCanvas.height.toDouble())
+        UIManager.draw(hud)
+
         if(showDebug) {
             var before = 0.0
             fun drawDebugText(text: String, height: Int = 50) {
@@ -146,10 +181,12 @@ class Engine(
                 hud.fillText(text, 0.0, before + height)
                 before += height
             }
-            drawDebugText("${fps.getString()} FPS")
-            drawDebugText(camera.pos.toString())
-            drawDebugText(camera.rotation.quaternionToRotationVector().toString())
-            drawDebugText(Date(buildInfo.timestamp).prettyString(), 40)
+            drawDebugText("FPS: ${fps.getString()}")
+            drawDebugText("Camera Pos: ${camera.pos.formatString()}")
+            drawDebugText("Build Info:", 20)
+            drawDebugText("Version ${buildInfo.version} rev-${buildInfo.githash}", 20)
+            drawDebugText("Message: ${buildInfo.commitMessage}", 20)
+            drawDebugText("Time: ${Date(buildInfo.timestamp).prettyString()}", 20)
         }
     }
 

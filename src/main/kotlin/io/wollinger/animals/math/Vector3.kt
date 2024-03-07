@@ -59,6 +59,13 @@ data class Vector3(var x: Float = 0f, var y: Float = 0f, var z: Float) {
 
     fun invert() = set(x = -x, y = -y, z = -z)
 
+    fun formatString(digits: Int = 2): String {
+        val x = x.asDynamic().toFixed(digits)
+        val y = y.asDynamic().toFixed(digits)
+        val z = z.asDynamic().toFixed(digits)
+        return "Vector3(x=$x, y=$y, z=$z)"
+    }
+
     companion object {
         val UP = Vector3(0, 1, 0)
         val DOWN = Vector3(0, -1, 0)

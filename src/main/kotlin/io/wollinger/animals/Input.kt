@@ -13,6 +13,12 @@ object Input {
     private val startDrag = Vector2()
     var dragDelta = Vector2()
     var scroll = 0.0
+    var didJustTouch: Vector2? = null
+        get() {
+            val returnVal = field
+            didJustTouch = null
+            return returnVal
+        }
 
     init {
         window.onwheel = {
@@ -26,11 +32,14 @@ object Input {
             }
         }
         window.onpointerdown = {
-            dragging = true
-            startDrag.set(it.clientX, it.clientY)
+            if(!UIManager.isOverUI(Vector2(it.clientX, it.clientY))) {
+                dragging = true
+                startDrag.set(it.clientX, it.clientY)
+            }
             null
         }
         window.onpointerup = {
+            if(!dragging) didJustTouch = Vector2(it.clientX, it.clientY)
             dragging = false
             dragDelta.set(0, 0)
             null
