@@ -104,9 +104,9 @@ class Engine(
         camera.rotation.setAxisAngle(Vector3(1, 0, 0), rotX)
         Input.scroll = 0.0
         camera.pos.add(
-            x = -Input.dragDelta.x * delta * dragSensitivity,
+            x = -Input.dragDelta.x * dragSensitivity * camera.pos.y,
             y = 0,
-            z = -Input.dragDelta.y * delta * dragSensitivity
+            z = -Input.dragDelta.y * dragSensitivity * camera.pos.y
         )
         Input.dragDelta.set(0, 0)
 
@@ -166,7 +166,7 @@ class Engine(
 
         // bind terrain.png and render world
         terrainTexture.bind()
-        world.render(gl, shader)
+        world.render(gl, shader, camera.pos)
         //bboxRenderer.draw(BoundingBox(Vector3(0, 0, 0), Vector3(16, 16, 16)), viewProjectionMatrix)
 
         // 2d ui code

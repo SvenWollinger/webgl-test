@@ -66,6 +66,13 @@ data class Vector3(var x: Float = 0f, var y: Float = 0f, var z: Float) {
         return "Vector3(x=$x, y=$y, z=$z)"
     }
 
+    fun dst(vector: Vector3): Float {
+        val a = vector.x - x
+        val b = vector.y - y
+        val c = vector.z - z
+        return sqrt(a * a + b * b + c * c)
+    }
+
     companion object {
         val UP = Vector3(0, 1, 0)
         val DOWN = Vector3(0, -1, 0)
